@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking</title>
+    <meta name="description"
+        content="Project page for SENTRY, an ECCV 2026 paper on neighbor-aware and temporally reasoned memory for visual tracking.">
+    <link rel="icon" type="image/jpeg" href="assets/cvml-ku-logo.jpg">
+    <link rel="apple-touch-icon" href="assets/cvml-ku-logo.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-soft': 'pulseSoft 3.4s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(18px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulseSoft: {
+                            '0%, 100%': { boxShadow: '0 0 0 0 rgba(5, 150, 105, 0.24)' },
+                            '50%': { boxShadow: '0 0 0 10px rgba(5, 150, 105, 0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #fbfaf7;
+            color: #18181b;
+            overflow-x: hidden;
+        }
+
+        .bg-grid-pattern {
+            background-image: radial-gradient(#d6d3d1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(214, 211, 209, 0.86);
+            box-shadow: 0 18px 48px rgba(24, 24, 27, 0.08);
+        }
+
+        .text-justify-custom {
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .code-block {
+            background-color: #18181b;
+            color: #e7e5e4;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+
+        .delay-100 {
+            animation-delay: 100ms;
+        }
+
+        .delay-200 {
+            animation-delay: 200ms;
+        }
+
+        .delay-300 {
+            animation-delay: 300ms;
+        }
+
+        .delay-400 {
+            animation-delay: 400ms;
+        }
+
+        #lightbox {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #lightbox.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #lightbox-img {
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        #lightbox.open #lightbox-img {
+            transform: scale(1);
+        }
+
+        #leaderboard th,
+        #leaderboard td {
+            padding: 0.9rem 0.75rem;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-emerald-200 selection:text-emerald-950">
+    <div class="relative overflow-hidden bg-stone-50 border-b border-stone-200">
+        <div class="absolute inset-0 bg-grid-pattern opacity-45"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-white/35 via-transparent to-stone-50"></div>
+
+        <header
+            class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-16 text-center opacity-0 animate-fade-in-up">
+            <div class="flex justify-center mb-5">
+                <div
+                    class="h-28 w-28 rounded-2xl border border-stone-200 bg-white shadow-xl shadow-emerald-900/10 p-2 flex items-center justify-center">
+                    <img src="assets/sentry_logo.png" alt="SENTRY logo" class="max-h-24 w-auto object-contain">
+                </div>
+            </div>
+
+            <h1
+                class="max-w-5xl mx-auto text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-zinc-950 leading-[1.12] mb-6">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 via-emerald-700 to-zinc-950">SENTRY</span><span>:</span>
+                <span class="mt-3 block sm:hidden text-[23px] leading-tight">
+                    SAM2-Enhanced
+                </span>
+                <span class="block sm:hidden text-[23px] leading-tight">
+                    Neighbor-Aware and
+                </span>
+                <span class="block sm:hidden text-[23px] leading-tight">
+                    Temporally Reasoned
+                </span>
+                <span class="block sm:hidden text-[23px] leading-tight">
+                    Memory for Visual Tracking
+                </span>
+                <span class="mt-3 hidden sm:block text-4xl lg:text-5xl leading-tight">
+                    SAM2-Enhanced Neighbor-Aware and
+                </span>
+                <span class="hidden sm:block text-4xl lg:text-5xl leading-tight">
+                    Temporally Reasoned Memory for
+                </span>
+                <span class="hidden sm:block text-4xl lg:text-5xl leading-tight">
+                    Visual Tracking
+                </span>
+            </h1>
+
+            <div
+                class="flex flex-wrap justify-center gap-x-5 gap-y-2 text-base sm:text-lg font-medium text-zinc-700 mb-4 px-2">
+                <span>Mohamad Alansari</span>
+                <span>Yonathan Michael</span>
+                <span>Hasan AlMarzouqi</span>
+                <span>Muzammal Naseer</span>
+                <span>Sajid Javed</span>
+                <span>Naoufel Werghi</span>
+            </div>
+
+            <div class="flex flex-col items-center justify-center gap-3 text-zinc-500 mb-10">
+                <div class="text-center">
+                    <span>Khalifa University, Abu Dhabi, UAE</span>
+                </div>
+            </div>
+            <div
+                class="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold text-emerald-700 bg-emerald-50 ring-1 ring-inset ring-emerald-700/20 mb-6">
+                ECCV 2026
+            </div>
+
+            <div class="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-4">
+                <button type="button" disabled
+                    class="w-full max-w-[250px] sm:w-auto inline-flex cursor-not-allowed items-center justify-center px-6 py-3 text-base font-semibold text-zinc-500 bg-white/80 border border-stone-200 rounded-full shadow-sm"
+                    title="Paper">
+                    <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
+                    Paper coming soon
+                </button>
+                <a href="https://github.com/HamadYA/SENTRY" target="_blank" rel="noopener"
+                    class="group w-full max-w-[250px] sm:w-auto inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white transition-all duration-200 bg-zinc-950 border border-transparent rounded-full hover:bg-emerald-700 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700">
+                    <svg class="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" viewBox="0 0 24 24"
+                        fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm3.163 21.783h-.093a.513.513 0 0 1-.382-.14.513.513 0 0 1-.14-.372v-1.406c.006-.467.01-.94.01-1.416a3.693 3.693 0 0 0-.151-1.028 1.832 1.832 0 0 0-.542-.875 8.014 8.014 0 0 0 2.038-.471 4.051 4.051 0 0 0 1.466-.964c.407-.427.71-.943.885-1.506a6.77 6.77 0 0 0 .3-2.13 4.138 4.138 0 0 0-.26-1.476 3.892 3.892 0 0 0-.795-1.284 2.81 2.81 0 0 0 .162-.582c.033-.2.05-.402.05-.604 0-.26-.03-.52-.09-.773a5.309 5.309 0 0 0-.221-.763.293.293 0 0 0-.111-.02h-.11c-.23.002-.456.04-.674.111a5.34 5.34 0 0 0-.703.26 6.503 6.503 0 0 0-.661.343c-.215.127-.405.249-.573.362a9.578 9.578 0 0 0-5.143 0 13.507 13.507 0 0 0-.572-.362 6.022 6.022 0 0 0-.672-.342 4.516 4.516 0 0 0-.705-.261 2.203 2.203 0 0 0-.662-.111h-.11a.29.29 0 0 0-.11.02 5.844 5.844 0 0 0-.23.763c-.054.254-.08.513-.081.773 0 .202.017.404.051.604.033.199.086.394.16.582A3.888 3.888 0 0 0 5.702 10a4.142 4.142 0 0 0-.263 1.476 6.871 6.871 0 0 0 .292 2.12c.181.563.483 1.08.884 1.516.415.422.915.75 1.466.964.653.25 1.337.41 2.033.476a1.828 1.828 0 0 0-.452.633 2.99 2.99 0 0 0-.2.744 2.754 2.754 0 0 1-1.175.27 1.788 1.788 0 0 1-1.065-.3 2.904 2.904 0 0 1-.752-.824 3.1 3.1 0 0 0-.292-.382 2.693 2.693 0 0 0-.372-.343 1.841 1.841 0 0 0-.432-.24 1.2 1.2 0 0 0-.481-.101c-.04.001-.08.005-.12.01a.649.649 0 0 0-.162.02.408.408 0 0 0-.13.06.116.116 0 0 0-.06.1.33.33 0 0 0 .14.242c.093.074.17.131.232.171l.03.021c.133.103.261.214.382.333.112.098.213.209.3.33.09.119.168.246.231.381.073.134.15.288.231.463.188.474.522.875.954 1.145.453.243.961.364 1.476.351.174 0 .349-.01.522-.03.172-.028.343-.057.515-.091v1.743a.5.5 0 0 1-.533.521h-.062a10.286 10.286 0 1 1 6.324 0v.005z" />
+                    </svg>
+                    Code
+                </a>
+            </div>
+        </header>
+    </div>
+
+    <main class="w-full max-w-[342px] sm:max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 -mt-8 relative z-10 overflow-hidden">
+        <section id="abstract" class="mb-24 opacity-0 animate-fade-in-up delay-100">
+            <div class="glass-card rounded-2xl sm:rounded-3xl p-5 sm:p-10 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-teal-500 via-emerald-600 to-amber-500"></div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-emerald-100 rounded-lg text-emerald-700">
+                        <i data-lucide="book-open" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Abstract</h2>
+                </div>
+                <p class="text-zinc-700 leading-relaxed text-base sm:text-lg">
+                    We revisit the memory update mechanism in SAM2-based visual object tracking and identify
+                    confidence-only mask selection as the dominant cause of drift under occlusion, rapid motion, and
+                    distractors. We introduce <strong
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-emerald-700 font-extrabold text-xl align-baseline">SENTRY</strong>,
+                    a training-free, plug-and-play, refine-before-write module that validates each memory update for
+                    short-horizon temporal consistency before committing it. SENTRY aggregates diverse segmentation
+                    hypotheses per frame and backtracks each candidate to form short, temporally coherent tracklets. A
+                    neighbor-aware, cycle-consistent matching stage evaluates candidates against recent trajectories to
+                    favor temporally and geometrically consistent hypotheses. SENTRY requires no retraining and leaves
+                    the base architecture untouched; it simply replaces confidence-driven writes with
+                    consistency-validated ones. To ensure fair and comprehensive evaluation, we re-evaluate major
+                    open-source SAM2-based trackers across all available scales and datasets, filling gaps where prior
+                    works reported incomplete results. Integrated into five strong baselines, SENTRY delivers
+                    consistent gains across nine benchmarks, achieving new zero-shot SOTA on
+                    <span
+                        class="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-sm font-medium text-teal-800 ring-1 ring-inset ring-teal-700/10 whitespace-nowrap mx-0.5">LaSOT</span>,
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">LaSOText</span>,
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">GOT-10k</span>,
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">VOT20</span>,
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">VOT22</span>, and
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">DiDi</span>.                 
+                    It also yields strong improvements elsewhere, even when all baselines are
+                    re-evaluated across all model scales. Despite its checks, SENTRY remains real-time, running at
+                    <span
+                        class="inline-flex items-center rounded-md bg-emerald-50 px-2 py-1 text-sm font-medium text-emerald-800 ring-1 ring-inset ring-emerald-700/10 whitespace-nowrap mx-0.5">32.8
+                        FPS</span>,
+                    introducing approximately <span
+                        class="inline-flex items-center rounded-md bg-amber-50 px-2 py-1 text-sm font-medium text-amber-800 ring-1 ring-inset ring-amber-700/10 whitespace-nowrap mx-0.5">25%
+                        overhead</span>
+                    relative to SAM2. Our results provide the first unified, all-scale evaluation of SAM2-based
+                    trackers and demonstrate that enforcing temporal validity at write time is a general design
+                    principle that consistently stabilizes memory-augmented tracking without retraining.
+                </p>
+            </div>
+        </section>
+
+        <section id="methodology" class="mb-24 opacity-0 animate-fade-in-up delay-200">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-teal-100 rounded-lg text-teal-700">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Methodology</h2>
+            </div>
+
+            <div
+                class="w-full bg-white rounded-2xl shadow-sm border border-stone-200 p-3 mb-10 overflow-hidden group">
+                <button type="button"
+                    class="w-full bg-stone-50 rounded-xl relative overflow-hidden cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    onclick="openLightbox('assets/architecture.png', 'SENTRY architecture diagram')"
+                    aria-label="Open architecture diagram">
+                    <img src="assets/architecture.png" alt="SENTRY architecture diagram"
+                        class="w-full h-auto rounded-xl transition-transform duration-700 ease-in-out group-hover:scale-[1.01]">
+                    <span
+                        class="absolute right-4 top-4 bg-white/90 text-zinc-900 rounded-full p-3 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="zoom-in" class="w-5 h-5"></i>
+                    </span>
+                </button>
+                <p class="text-sm text-zinc-600 text-justify-custom px-2 pt-4 pb-1">
+                    <strong>SENTRY architecture.</strong> The module replaces confidence-driven memory writes with
+                    consistency-validated updates. Diverse segmentation hypotheses are refined, backtracked into
+                    short-horizon tracklets, and compared against recent neighbors through cycle-consistent matching
+                    before a memory update is committed.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-7 border border-stone-200 shadow-sm">
+                    <div class="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="git-branch" class="w-6 h-6 text-teal-700"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-zinc-950 mb-3">Refine Before Write</h3>
+                    <p class="text-zinc-600 leading-relaxed">
+                        SENTRY validates candidate masks before they enter memory, replacing confidence-only updates
+                        with temporal checks that reduce drift under occlusion and distractors.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-7 border border-stone-200 shadow-sm">
+                    <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="route" class="w-6 h-6 text-emerald-700"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-zinc-950 mb-3">Temporal Tracklets</h3>
+                    <p class="text-zinc-600 leading-relaxed">
+                        Each candidate is backtracked to form a short, coherent trajectory, giving the memory update a
+                        local temporal history rather than a single-frame score.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-7 border border-stone-200 shadow-sm">
+                    <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="radar" class="w-6 h-6 text-amber-700"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-zinc-950 mb-3">Neighbor-Aware Checks</h3>
+                    <p class="text-zinc-600 leading-relaxed">
+                        Recent trajectories act as consistency anchors, favoring masks that preserve identity and
+                        geometry across neighboring frames.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="highlights" class="mb-24 opacity-0 animate-fade-in-up delay-300">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-amber-100 rounded-lg text-amber-700">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Highlights</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-5">
+                <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <i data-lucide="shield-check" class="w-7 h-7 text-teal-700 mb-4"></i>
+                    <h3 class="font-bold text-zinc-950 text-lg mb-2">Neighbor-aware memory</h3>
+                    <p class="text-zinc-600 leading-relaxed">Suppresses distractors and drift before unstable masks are
+                        written into memory.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <i data-lucide="repeat-2" class="w-7 h-7 text-emerald-700 mb-4"></i>
+                    <h3 class="font-bold text-zinc-950 text-lg mb-2">Self-verified masks</h3>
+                    <p class="text-zinc-600 leading-relaxed">Uses cycle-consistent checks to keep object identity stable
+                        across challenging sequences.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <i data-lucide="plug" class="w-7 h-7 text-rose-700 mb-4"></i>
+                    <h3 class="font-bold text-zinc-950 text-lg mb-2">Drop-in integration</h3>
+                    <p class="text-zinc-600 leading-relaxed">Works with memory-based trackers without retraining or
+                        changing the base architecture.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <i data-lucide="activity" class="w-7 h-7 text-amber-700 mb-4"></i>
+                    <h3 class="font-bold text-zinc-950 text-lg mb-2">Real-time tracking</h3>
+                    <p class="text-zinc-600 leading-relaxed">Maintains 32.8 FPS while improving robustness on long,
+                        cluttered, occluded videos.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="results" class="mb-24 opacity-0 animate-fade-in-up delay-400">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-teal-100 rounded-lg text-teal-700">
+                    <i data-lucide="bar-chart-2" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Quantitative Results</h2>
+            </div>
+
+            <p class="text-zinc-600 mb-8 text-lg leading-relaxed">
+                SENTRY is evaluated across all available scales and datasets, including the main visual object tracking
+                benchmarks and VOT challenge suites. Use the carousel to inspect the complete result figures.
+            </p>
+
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden">
+                <div class="flex items-center justify-between gap-3 border-b border-stone-200 px-4 py-3">
+                    <button type="button" id="results-prev"
+                        class="h-10 w-10 rounded-full bg-zinc-950 text-white inline-flex items-center justify-center hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        aria-label="Previous result">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="text-center">
+                        <p id="results-caption" class="font-bold text-zinc-950">Overall results</p>
+                        <p id="results-count" class="text-sm text-zinc-500">1 of 4</p>
+                    </div>
+                    <button type="button" id="results-next"
+                        class="h-10 w-10 rounded-full bg-zinc-950 text-white inline-flex items-center justify-center hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        aria-label="Next result">
+                        <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <button type="button" id="results-figure"
+                    class="w-full bg-stone-50 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-label="Open result figure">
+                    <img id="results-img" src="assets/overall.png" alt="Overall results"
+                        class="w-full h-auto max-h-[720px] object-contain">
+                </button>
+            </div>
+        </section>
+
+        <section id="visualizations" class="mb-24">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-rose-100 rounded-lg text-rose-700">
+                    <i data-lucide="images" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Qualitative Results</h2>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6">
+                <article class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden group">
+                    <button type="button"
+                        class="w-full bg-stone-50 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        onclick="openLightbox('assets/Fig2aa.png', 'Visualization figure 1')">
+                        <img src="assets/Fig2aa.png" alt="Visualization figure 1"
+                            class="w-full h-64 object-contain transition-transform duration-700 group-hover:scale-[1.02]">
+                    </button>
+                    <div class="p-5">
+                        <h3 class="font-bold text-zinc-950">Temporal consistency</h3>
+                        <p class="text-zinc-600 mt-2">Representative qualitative behavior under difficult frame-to-frame
+                            changes.</p>
+                    </div>
+                </article>
+
+                <article class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden group">
+                    <button type="button"
+                        class="w-full bg-stone-50 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        onclick="openLightbox('assets/Fig2bb.png', 'Visualization figure 2')">
+                        <img src="assets/Fig2bb.png" alt="Visualization figure 2"
+                            class="w-full h-64 object-contain transition-transform duration-700 group-hover:scale-[1.02]">
+                    </button>
+                    <div class="p-5">
+                        <h3 class="font-bold text-zinc-950">Distractor suppression</h3>
+                        <p class="text-zinc-600 mt-2">Examples showing why neighbor-aware validation matters before
+                            committing memory.</p>
+                    </div>
+                </article>
+
+                <article class="bg-white rounded-2xl border border-stone-200 shadow-sm overflow-hidden group">
+                    <button type="button"
+                        class="w-full bg-stone-50 cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        onclick="openLightbox('assets/Fig2cc.png', 'Visualization figure 3')">
+                        <img src="assets/Fig2cc.png" alt="Visualization figure 3"
+                            class="w-full h-64 object-contain transition-transform duration-700 group-hover:scale-[1.02]">
+                    </button>
+                    <div class="p-5">
+                        <h3 class="font-bold text-zinc-950">Robust memory writes</h3>
+                        <p class="text-zinc-600 mt-2">SENTRY keeps memory updates conservative without removing
+                            real-time tracking behavior.</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="leaderboard" class="mb-24">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="p-2 bg-emerald-100 rounded-lg text-emerald-700">
+                    <i data-lucide="table-2" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Leaderboard</h2>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-2xl shadow-sm border border-stone-200">
+                <table class="w-full min-w-[1200px] text-sm text-center text-zinc-600">
+                    <thead class="text-xs text-zinc-700 uppercase bg-stone-50 border-b border-stone-200">
+                        <tr>
+                            <th rowspan="2" class="px-4 py-4 font-bold border-r border-slate-200 align-middle">
+                                Category</th>
+                            <th rowspan="2"
+                                class="px-4 py-4 font-bold border-r border-slate-200 align-middle text-left">Method
+                            </th>
+                            <th colspan="3" class="px-4 py-3 font-bold border-b border-r border-slate-200">LaSOT</th>
+                            <th colspan="3" class="px-4 py-3 font-bold border-b border-r border-slate-200">LaSOText
+                            </th>
+                            <th colspan="3" class="px-4 py-3 font-bold border-b border-r border-slate-200">TNL2K</th>
+                            <th colspan="3" class="px-4 py-3 font-bold border-b border-r border-slate-200">GOT-10k
+                            </th>
+                            <th colspan="3" class="px-4 py-3 font-bold border-b">TrackingNet</th>
+                        </tr>
+                        <tr>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">S</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">NP</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-200">P</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">S</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">NP</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-200">P</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">S</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">NP</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-200">P</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">AO</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">SR0.50</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-200">SR0.75</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">S</th>
+                            <th class="px-3 py-3 font-semibold border-r border-slate-100">NP</th>
+                            <th class="px-3 py-3 font-semibold">P</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td rowspan="5" class="px-4 py-4 font-semibold text-slate-900 border-r border-slate-200">
+                                Vision-Based</td>
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                DiffusionTrack</td>
+                            <td>70.8</td>
+                            <td>79.8</td>
+                            <td class="border-r border-slate-200">76.7</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>56.4</td>
+                            <td>72.5</td>
+                            <td class="border-r border-slate-200">57.3</td>
+                            <td>74.8</td>
+                            <td>85.4</td>
+                            <td class="border-r border-slate-200">72.0</td>
+                            <td>83.8</td>
+                            <td>88.2</td>
+                            <td>82.1</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                HIPTrack</td>
+                            <td>72.7</td>
+                            <td>82.9</td>
+                            <td class="border-r border-slate-200">79.5</td>
+                            <td>53.0</td>
+                            <td>64.3</td>
+                            <td class="border-r border-slate-200">60.6</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>77.4</td>
+                            <td>88.0</td>
+                            <td class="border-r border-slate-200">74.5</td>
+                            <td>84.5</td>
+                            <td>89.1</td>
+                            <td>83.8</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                AQATrack256</td>
+                            <td>71.4</td>
+                            <td>81.9</td>
+                            <td class="border-r border-slate-200">78.6</td>
+                            <td>51.2</td>
+                            <td>62.2</td>
+                            <td class="border-r border-slate-200">58.9</td>
+                            <td>57.8</td>
+                            <td>59.4</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>73.8</td>
+                            <td>83.2</td>
+                            <td class="border-r border-slate-200">72.1</td>
+                            <td>83.8</td>
+                            <td>88.6</td>
+                            <td>83.1</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                ARPTrack256</td>
+                            <td>72.6</td>
+                            <td>81.4</td>
+                            <td class="border-r border-slate-200">78.5</td>
+                            <td>52.0</td>
+                            <td>62.9</td>
+                            <td class="border-r border-slate-200">58.7</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>77.7</td>
+                            <td>87.3</td>
+                            <td class="border-r border-slate-200">74.3</td>
+                            <td>85.5</td>
+                            <td>90.0</td>
+                            <td>85.3</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 bg-slate-50 hover:bg-slate-100">
+                            <td class="px-4 py-4 font-semibold text-slate-950 border-r border-slate-100 text-left">
+                                SPMTrack-B</td>
+                            <td>74.9 <span
+                                    class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">3rd</span>
+                            </td>
+                            <td>84.0</td>
+                            <td class="border-r border-slate-200">81.7</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>62.0</td>
+                            <td>79.7</td>
+                            <td class="border-r border-slate-200">66.7</td>
+                            <td>76.5</td>
+                            <td>85.9</td>
+                            <td class="border-r border-slate-200">76.3</td>
+                            <td>86.1 <span
+                                    class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">Best</span>
+                            </td>
+                            <td>90.2</td>
+                            <td>85.6</td>
+                        </tr>
+
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td rowspan="5" class="px-4 py-4 font-semibold text-slate-900 border-r border-slate-200">
+                                VLM</td>
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                UVLTrack-B</td>
+                            <td>69.4</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">74.9</td>
+                            <td>49.2</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">55.8</td>
+                            <td>62.7</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">65.4</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>83.4</td>
+                            <td>&ndash;</td>
+                            <td>82.1</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                QueryNLT</td>
+                            <td>59.9</td>
+                            <td>69.6</td>
+                            <td class="border-r border-slate-200">63.5</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>57.8</td>
+                            <td>75.6</td>
+                            <td class="border-r border-slate-200">58.7</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                DUTrack384</td>
+                            <td>74.1</td>
+                            <td>84.9</td>
+                            <td class="border-r border-slate-200">82.9</td>
+                            <td>52.5</td>
+                            <td>63.6</td>
+                            <td class="border-r border-slate-200">60.5</td>
+                            <td>65.6 <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>83.2</td>
+                            <td class="border-r border-slate-200">71.9</td>
+                            <td>77.8</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                MambaVLT</td>
+                            <td>66.6</td>
+                            <td>77.3</td>
+                            <td class="border-r border-slate-200">71.0</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>66.5 <span
+                                    class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">Best</span>
+                            </td>
+                            <td>90.9</td>
+                            <td class="border-r border-slate-200">69.9</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 bg-slate-50 hover:bg-slate-100">
+                            <td class="px-4 py-4 font-semibold text-slate-950 border-r border-slate-100 text-left">
+                                CLDTracker</td>
+                            <td>74.0</td>
+                            <td>83.9</td>
+                            <td class="border-r border-slate-200">81.1</td>
+                            <td>53.1</td>
+                            <td>64.8</td>
+                            <td class="border-r border-slate-200">60.6</td>
+                            <td>61.5</td>
+                            <td>82.2</td>
+                            <td class="border-r border-slate-200">64.3</td>
+                            <td>77.5</td>
+                            <td>85.4</td>
+                            <td class="border-r border-slate-200">75.6</td>
+                            <td>85.1</td>
+                            <td>89.7</td>
+                            <td>84.9</td>
+                        </tr>
+
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td rowspan="9" class="px-4 py-4 font-semibold text-slate-900 border-r border-slate-200">
+                                Memory-Based</td>
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                MemVLT</td>
+                            <td>72.9</td>
+                            <td>85.7</td>
+                            <td class="border-r border-slate-200">80.5</td>
+                            <td>52.1</td>
+                            <td>63.3</td>
+                            <td class="border-r border-slate-200">59.8</td>
+                            <td>63.3 <span
+                                    class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">3rd</span>
+                            </td>
+                            <td>80.9</td>
+                            <td class="border-r border-slate-200">67.4</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 bg-slate-50 hover:bg-slate-100">
+                            <td class="px-4 py-4 font-semibold text-slate-950 border-r border-slate-100 text-left">
+                                RTracker-L</td>
+                            <td>74.7</td>
+                            <td>84.5</td>
+                            <td class="border-r border-slate-200">&ndash;</td>
+                            <td>54.9</td>
+                            <td>65.5</td>
+                            <td class="border-r border-slate-200">62.7</td>
+                            <td>60.6</td>
+                            <td>&ndash;</td>
+                            <td class="border-r border-slate-200">63.7</td>
+                            <td>77.9</td>
+                            <td>87.0</td>
+                            <td class="border-r border-slate-200">76.9</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                            <td>&ndash;</td>
+                        </tr>
+                        <tr class="bg-zinc-950 text-white">
+                            <td colspan="16" class="px-4 py-3 text-left font-bold tracking-wide">Zero-shot Method</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                SAM2-L</td>
+                            <td>68.5</td>
+                            <td>76.1</td>
+                            <td class="border-r border-slate-200">73.6</td>
+                            <td>56.8</td>
+                            <td>71.1</td>
+                            <td class="border-r border-slate-200">67.0</td>
+                            <td>56.7</td>
+                            <td>75.4</td>
+                            <td class="border-r border-slate-200">62.5</td>
+                            <td>80.8</td>
+                            <td>91.3</td>
+                            <td class="border-r border-slate-200">75.5</td>
+                            <td>85.3</td>
+                            <td>91.3</td>
+                            <td>88.2</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                SAMURAI-L</td>
+                            <td>74.2</td>
+                            <td>82.7</td>
+                            <td class="border-r border-slate-200">80.2</td>
+                            <td>61.0 <span
+                                    class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">3rd</span>
+                            </td>
+                            <td>73.9</td>
+                            <td class="border-r border-slate-200">72.2</td>
+                            <td>50.6</td>
+                            <td>67.5</td>
+                            <td class="border-r border-slate-200">54.2</td>
+                            <td>81.7 <span
+                                    class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">3rd</span>
+                            </td>
+                            <td>92.2</td>
+                            <td class="border-r border-slate-200">76.9</td>
+                            <td>85.3</td>
+                            <td>88.2</td>
+                            <td>85.0</td>
+                        </tr>
+                        <tr class="border-b border-slate-100 hover:bg-slate-50">
+                            <td class="px-4 py-4 font-medium text-slate-900 border-r border-slate-100 text-left">
+                                DAM4SAM-L</td>
+                            <td>75.1 <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>83.3</td>
+                            <td class="border-r border-slate-200">81.1</td>
+                            <td>60.9</td>
+                            <td>75.3</td>
+                            <td class="border-r border-slate-200">72.2</td>
+                            <td>59.8</td>
+                            <td>79.8</td>
+                            <td class="border-r border-slate-200">66.8</td>
+                            <td>81.1</td>
+                            <td>91.4</td>
+                            <td class="border-r border-slate-200">77.2</td>
+                            <td>85.3</td>
+                            <td>90.9</td>
+                            <td>87.4</td>
+                        </tr>
+                        <tr class="border-b border-teal-100 bg-teal-50/70 hover:bg-teal-50">
+                            <td class="px-4 py-4 font-bold text-teal-950 border-r border-teal-100 text-left">
+                                SENTRY-S2-L <span
+                                    class="rounded bg-teal-100 px-1.5 py-0.5 text-[11px] text-teal-800">Ours</span>
+                            </td>
+                            <td>70.2 (+1.7)</td>
+                            <td>77.2 (+1.1)</td>
+                            <td class="border-r border-teal-200">74.5 (+0.9)</td>
+                            <td>57.0 (+0.2)</td>
+                            <td>71.7 (+0.6)</td>
+                            <td class="border-r border-teal-200">67.1 (+0.1)</td>
+                            <td>57.9 (+1.2)</td>
+                            <td>76.9 (+1.5)</td>
+                            <td class="border-r border-teal-200">64.1 (+1.6)</td>
+                            <td>81.1 (+0.3)</td>
+                            <td>91.4 (+0.1)</td>
+                            <td class="border-r border-teal-200">76.5 (+1.0)</td>
+                            <td>85.7 (+0.4)</td>
+                            <td>91.9 (+0.6)</td>
+                            <td>88.9 (+0.7)</td>
+                        </tr>
+                        <tr class="border-b border-teal-100 bg-teal-50/70 hover:bg-teal-50">
+                            <td class="px-4 py-4 font-bold text-teal-950 border-r border-teal-100 text-left">
+                                SENTRY-SR-L <span
+                                    class="rounded bg-teal-100 px-1.5 py-0.5 text-[11px] text-teal-800">Ours</span>
+                            </td>
+                            <td>75.1 (+0.9) <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>82.7</td>
+                            <td class="border-r border-teal-200">80.4 (+0.2)</td>
+                            <td>61.5 (+0.5) <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>75.0 (+1.1)</td>
+                            <td class="border-r border-teal-200">72.9 (+0.7)</td>
+                            <td>59.6 (+9.0)</td>
+                            <td>78.8 (+11.3)</td>
+                            <td class="border-r border-teal-200">66.4 (+12.2)</td>
+                            <td>81.8 (+0.1) <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>92.3 (+0.1)</td>
+                            <td class="border-r border-teal-200">77.1 (+0.2)</td>
+                            <td>85.8 (+0.5) <span
+                                    class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-bold text-amber-700">3rd</span>
+                            </td>
+                            <td>91.1 (+2.9)</td>
+                            <td>88.1 (+3.1)</td>
+                        </tr>
+                        <tr class="bg-emerald-50 hover:bg-emerald-100/70">
+                            <td class="px-4 py-4 font-extrabold text-emerald-950 border-r border-emerald-100 text-left">
+                                SENTRY-D4S-L <span
+                                    class="rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] text-emerald-800">Ours</span>
+                            </td>
+                            <td>76.3 (+1.2) <span
+                                    class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">Best</span>
+                            </td>
+                            <td>84.7 (+1.4)</td>
+                            <td class="border-r border-emerald-200">82.4 (+1.3)</td>
+                            <td>61.8 (+0.9) <span
+                                    class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">Best</span>
+                            </td>
+                            <td>76.6 (+1.3)</td>
+                            <td class="border-r border-emerald-200">73.8 (+1.6)</td>
+                            <td>61.3 (+0.5)</td>
+                            <td>81.3 (+1.5)</td>
+                            <td class="border-r border-emerald-200">68.3 (+1.5)</td>
+                            <td>82.1 (+1.0) <span
+                                    class="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">Best</span>
+                            </td>
+                            <td>92.6 (+1.2)</td>
+                            <td class="border-r border-emerald-200">78.2 (+1.0)</td>
+                            <td>85.9 (+0.6) <span
+                                    class="ml-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold text-slate-700">2nd</span>
+                            </td>
+                            <td>91.5 (+0.6)</td>
+                            <td>87.9 (+0.5)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="citation" class="mb-20">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="p-2 bg-stone-200 rounded-lg text-zinc-700">
+                    <i data-lucide="quote" class="w-6 h-6"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-zinc-950 tracking-tight">Citation</h2>
+            </div>
+            <div class="relative group">
+                <button onclick="copyBibtex()" type="button"
+                    class="absolute top-4 right-4 p-2.5 rounded-lg bg-zinc-800 text-zinc-300 hover:bg-emerald-700 hover:text-white transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-700"
+                    title="Copy to clipboard" aria-label="Copy BibTeX">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <pre class="code-block p-6 rounded-2xl overflow-x-auto text-sm leading-relaxed border border-zinc-800 shadow-2xl"
+                    id="bibtex">@inproceedings{alansari2026sentry,
+    title={SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking},
+    author={Alansari, Mohamad and Michael, Yonathan and AlMarzouqi, Hasan and Naseer, Muzammal and Javed, Sajid and Werghi, Naoufel},
+    booktitle={Proceedings of the European Conference on Computer Vision (ECCV)},
+    year={2026}
+}</pre>
+            </div>
+            <div id="copy-toast" class="hidden text-emerald-700 text-sm font-semibold mt-3 items-center">
+                <i data-lucide="check-circle-2" class="w-4 h-4 mr-1"></i> Copied to clipboard.
+            </div>
+        </section>
+
+        <section id="contact" class="pb-12">
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-sm p-7">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-2 bg-emerald-100 rounded-lg text-emerald-700">
+                        <i data-lucide="mail" class="w-6 h-6"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-zinc-950 tracking-tight">Contact</h2>
+                </div>
+                <p class="text-zinc-600 leading-relaxed">
+                    For inquiries, reach out at
+                    <a class="font-semibold text-emerald-700 hover:text-emerald-900" href="mailto:100061914@ku.ac.ae">
+                        100061914@ku.ac.ae
+                    </a>.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-stone-200 bg-white py-8">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm text-zinc-500">
+            <div class="flex items-center justify-center gap-3 mb-3">
+                <img src="assets/cvml-ku-logo.jpg" alt="CVML-KU logo"
+                    class="h-8 w-8 rounded-full border border-stone-200 object-cover">
+                <span class="font-semibold text-zinc-700">CVML-KU</span>
+            </div>
+            <p>&copy; 2026 CVML-KU lab, Khalifa University. All rights reserved.</p>
+            <p class="mt-2">
+                Website template adapted from
+                <a href="https://risys-lab.github.io/SPARROW/" target="_blank" rel="noopener"
+                    class="font-semibold text-emerald-700 hover:text-emerald-900">SPARROW</a>.
+            </p>
+        </div>
+    </footer>
+
+    <div id="lightbox"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/95 backdrop-blur-sm opacity-0 invisible p-4">
+        <button onclick="closeLightbox()"
+            class="absolute top-6 right-6 text-white/80 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+            aria-label="Close lightbox">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <div class="max-w-7xl w-full max-h-[90vh] flex flex-col items-center">
+            <img id="lightbox-img" src="" alt="Expanded figure"
+                class="max-w-full max-h-[82vh] object-contain rounded-lg shadow-2xl transform scale-95">
+            <p id="lightbox-caption" class="text-zinc-300 mt-5 text-lg font-medium text-center"></p>
+        </div>
+    </div>
+
+    <script>
+        const resultsImages = [
+            { src: 'assets/overall.png', caption: 'Overall results', alt: 'Overall SENTRY results' },
+            { src: 'assets/vot20.png', caption: 'VOT20 results', alt: 'VOT20 SENTRY results' },
+            { src: 'assets/vot22.png', caption: 'VOT22 results', alt: 'VOT22 SENTRY results' },
+            { src: 'assets/vot24.png', caption: 'VOT24 results', alt: 'VOT24 SENTRY results' }
+        ];
+
+        let resultsIndex = 0;
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        const resultsImg = document.getElementById('results-img');
+        const resultsCaption = document.getElementById('results-caption');
+        const resultsCount = document.getElementById('results-count');
+        const resultsFigure = document.getElementById('results-figure');
+
+        function openLightbox(src, alt) {
+            lightboxImg.src = src;
+            lightboxImg.alt = alt || 'Expanded figure';
+            lightboxCaption.textContent = alt || '';
+            lightbox.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('open');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                if (!lightbox.classList.contains('open')) {
+                    lightboxImg.src = '';
+                }
+            }, 300);
+        }
+
+        function updateResultsSlide(direction = 0) {
+            resultsIndex = (resultsIndex + direction + resultsImages.length) % resultsImages.length;
+            const item = resultsImages[resultsIndex];
+            resultsImg.src = item.src;
+            resultsImg.alt = item.alt;
+            resultsCaption.textContent = item.caption;
+            resultsCount.textContent = `${resultsIndex + 1} of ${resultsImages.length}`;
+            resultsFigure.setAttribute('aria-label', `Open ${item.caption}`);
+        }
+
+        document.getElementById('results-prev')?.addEventListener('click', () => updateResultsSlide(-1));
+        document.getElementById('results-next')?.addEventListener('click', () => updateResultsSlide(1));
+        resultsFigure?.addEventListener('click', () => {
+            const item = resultsImages[resultsIndex];
+            openLightbox(item.src, item.alt);
+        });
+
+        lightbox.addEventListener('click', function (event) {
+            if (event.target === lightbox) closeLightbox();
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && lightbox.classList.contains('open')) {
+                closeLightbox();
+            }
+            if (event.key === 'ArrowLeft') {
+                updateResultsSlide(-1);
+            }
+            if (event.key === 'ArrowRight') {
+                updateResultsSlide(1);
+            }
+        });
+
+        function copyBibtex() {
+            const bibtex = document.getElementById('bibtex').innerText;
+            const toast = document.getElementById('copy-toast');
+
+            function showToast() {
+                toast.classList.remove('hidden');
+                toast.classList.add('flex');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    toast.classList.remove('flex');
+                }, 2200);
+            }
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(bibtex).then(showToast);
+                return;
+            }
+
+            const textArea = document.createElement('textarea');
+            textArea.value = bibtex;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast();
+        }
+
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        updateResultsSlide(0);
+    </script>
+</body>
+
+</html>
