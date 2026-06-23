@@ -17,9 +17,9 @@
 
 **Official repository for "SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking" (ECCV 2026).**
 
-**Authors:** Mohamad Alansari<sup>*</sup>, Yonathan Michael<sup>*</sup>, Hasan AlMarzouqi, Muzammal Naseer, Naoufel Werghi, and Sajid Javed
+**Authors:** Mohamad Alansari*, Yonathan Michael*, Hasan AlMarzouqi, Muzammal Naseer, Naoufel Werghi, and Sajid Javed
 
-Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. <sup>*</sup>Equal contribution.
+Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. *Equal contribution.
 
 ---
 
