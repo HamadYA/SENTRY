@@ -37,8 +37,8 @@ Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. 
 ---
 
 ## News
-- 2026-XX-XX: SENTRY has been accepted to ECCV 2026.
-- 2026-XX-XX: Project page is available at https://hamadya.github.io/SENTRY/.
+- 2026-06-18: SENTRY has been accepted to ECCV 2026.
+- 2026-06-18: Project page is available at https://hamadya.github.io/SENTRY/.
 - 2026-XX-XX: Code, inference scripts, and evaluation wrappers will be released here.
 
 ### Release Plan and Checklist
@@ -54,11 +54,12 @@ We are releasing SENTRY code, configs, and evaluation scripts. Track progress he
 - [ ] Add examples for SENTRY-S2, SENTRY-SR, and SENTRY-D4S.
 - [ ] Add visualization scripts for masks, boxes, and tracklets.
 
-#### 2) Checkpoints and Third-Party Trackers
-- [ ] Add SAM2 checkpoint preparation guide.
+#### 2) Third-Party Trackers
+- [ ] Add SAM2 preparation guide.
 - [ ] Add SAMURAI integration instructions.
 - [ ] Add DAM4SAM integration instructions.
-- [ ] Add optional SAMITE and HiM2SAM integration notes.
+- [ ] Add HiM2SAM integration instructions.
+- [ ] Add SAMITE integration instructions.
 
 #### 3) Evaluation
 - [ ] Add benchmark preparation instructions.
