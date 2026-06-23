@@ -10,7 +10,7 @@
 
 <p align="center">
   📄<a href="#">Paper</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-  🌐<a href="https://hamadya.github.io/SENTRY/">Project Page</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+  🌐<a href="https://hamadya.github.io/SENTRY/">Project Page</a>&nbsp;&nbsp;
 </p>
 
 **Official repository for "SENTRY <img src="assets/sentry_logo.png" alt="SENTRY Logo" height="32">: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking" (ECCV 2026).**
