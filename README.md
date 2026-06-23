@@ -29,7 +29,6 @@ Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. 
 - [Getting Started](#getting-started)
 - [Checkpoints](#checkpoints)
 - [Quick Run](#quick-run)
-- [Training](#training)
 - [Evaluation](#evaluation)
 - [Citation](#citation)
 - [Acknowledgements](#acknowledgements)
@@ -128,10 +127,10 @@ SENTRY can be attached to multiple SAM2-based visual trackers.
 | SENTRY variant | Host tracker | Description |
 | :--- | :--- | :--- |
 | **SENTRY-S2** | SAM2 | SENTRY applied to vanilla SAM2. |
-| **SENTRY-SR** | SAMURAI | SENTRY applied to SAMURAI motion-aware memory. |
-| **SENTRY-D4S** | DAM4SAM | SENTRY applied to DAM4SAM distractor-aware memory. |
-| **SENTRY-SA** | SAMITE | Optional extended evaluation host. |
-| **SENTRY-HiM** | HiM2SAM | Optional extended evaluation host. |
+| **SENTRY-SR** | SAMURAI | SENTRY applied to SAMURAI. |
+| **SENTRY-D4S** | DAM4SAM | SENTRY applied to DAM4SAM. |
+| **SENTRY-SA** | SAMITE | SENTRY applied to SAMITE. |
+| **SENTRY-HiM** | HiM2SAM | SENTRY applied to HiM2SAM. |
 
 Supported SAM2 model scales:
 
@@ -151,14 +150,14 @@ Supported SAM2 model scales:
 Clone the repository:
 
 ```bash
-git clone https://github.com/<ORG>/SENTRY.git
+git clone https://github.com/HamadYA/SENTRY.git
 cd SENTRY
 ```
 
 Create the environment:
 
 ```bash
-conda env create -f environment.yml
+conda env create -f sentry.yml
 conda activate sentry
 ```
 
@@ -171,45 +170,32 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-A typical setup requires PyTorch, SAM2, OpenCV, NumPy, SciPy, tqdm, matplotlib, pycocotools, and the official benchmark toolkits for evaluation.
+A typical setup requires PyTorch, OpenCV, NumPy, SciPy, tqdm, matplotlib, pycocotools, and the official benchmark toolkits for evaluation.
 
 ---
 
 ## Checkpoints
 
-Place host tracker checkpoints under `checkpoints/`.
-
+Place sam2 checkpoints under `checkpoints/`.
+```bash
+cd checkpoints
+bash download_ckpts.sh
+```
 Expected directory structure:
 
 ```bash
 SENTRY/
 ├── checkpoints/
-│   ├── sam2/
-│   │   ├── sam2_hiera_tiny.pt
-│   │   ├── sam2_hiera_small.pt
-│   │   ├── sam2_hiera_base_plus.pt
-│   │   └── sam2_hiera_large.pt
-│   ├── samurai/
-│   ├── dam4sam/
-│   ├── samite/
-│   └── him2sam/
+│   ├── sam2.1_hiera_tiny.pt
+│   ├── sam2.1_hiera_small.pt
+│   ├── sam2.1_hiera_base_plus.pt
+│   ├── sam2.1_hiera_large.pt
 ├── configs/
 ├── tools/
 ├── scripts/
 ├── assets/
 └── outputs/
 ```
-
-Recommended checkpoint sources:
-
-| Component | Source | Destination |
-| :--- | :--- | :--- |
-| SAM2 | Official SAM2 checkpoints | `checkpoints/sam2/` |
-| SAMURAI | Official SAMURAI release | `checkpoints/samurai/` |
-| DAM4SAM | Official DAM4SAM release | `checkpoints/dam4sam/` |
-| SAMITE | Official SAMITE release, optional | `checkpoints/samite/` |
-| HiM2SAM | Official HiM2SAM release, optional | `checkpoints/him2sam/` |
-
 ---
 
 ## Quick Run
@@ -246,15 +232,6 @@ Arguments:
 - `--init-bbox`: first-frame target box in `x y w h` format.
 - `--init-mask`: optional first-frame target mask.
 - `--save-dir`: directory for boxes, masks, and visualizations.
-
----
-
-<a id="training"></a>
-## Training
-
-SENTRY is **training-free**. No SENTRY-specific finetuning is required.
-
-To reproduce the paper results, download the host tracker checkpoints and run SENTRY at inference time. SENTRY changes the memory-admission decision before memory writing, while leaving the host backbone, decoder, and memory architecture unchanged.
 
 ---
 
@@ -336,6 +313,17 @@ Runtime on NVIDIA A100:
 | SAMURAI-L -> SENTRY-SR-L | 40.6 | 30.9 | 24.0% | 5.2 GB | 5.7 GB |
 | DAM4SAM-L -> SENTRY-D4S-L | 39.4 | 30.2 | 23.4% | 5.2 GB | 5.7 GB |
 
+
+---
+
+## 🙏 Acknowledgements
+
+We would like to express our sincere gratitude to the authors and contributors of [SAM2](https://github.com/facebookresearch/sam2), [SAMURAI](https://github.com/yangchris11/samurai), [DAM4SAM](https://github.com/jovanavidenovic/DAM4SAM), [SAMITE](https://github.com/Sam1224/SAMITE), [HiM2SAM](https://github.com/LouisFinner/HiM2SAM), [SAM2Long](https://github.com/LouisFinner/HiM2SAM), [NeighborTrack](https://github.com/franktpmvu/NeighborTrack), and many other open-source efforts in visual object tracking and video object segmentation. Their impactful research, public implementations, checkpoints, and benchmarks have been invaluable to the development and evaluation of SENTRY.
+
+We are also very grateful to the **ECCV 2026** reviewers, area chairs, organizers, and the broader **computer vision community** for their constructive feedback, service, and continued support of open scientific progress. We deeply appreciate being part of this community and hope SENTRY serves as a useful contribution for future research.
+
+This work was supported in part by the Khalifa University Center for Autonomous Robotic Systems (KUCARS) under Award RC1-2018-KUCARS; in part by Silal Innovation Oasis through projects under grants 8475000023, 8475000024, 8475000025, and 8475000026; and in part by Khalifa University of Science and Technology through the Faculty Start-Ups under Project ID KU-INT-FSU-2005-8474000775.
+
 ---
 
 ## Citation
@@ -350,16 +338,3 @@ If you find SENTRY useful in your research, please consider citing our paper:
   year={2026}
 }
 ```
-
----
-
-## Acknowledgements
-
-This work was supported in part by the Khalifa University Center for Autonomous Robotic Systems (KUCARS) under Award RC1-2018-KUCARS; in part by Silal Innovation Oasis through projects under grants 8475000023, 8475000024, 8475000025, and 8475000026; and in part by Khalifa University of Science and Technology through the Faculty Start-Ups under Project ID KU-INT-FSU-2005-8474000775.
-
----
-
-## License
-
-Please check the license terms of this repository and the third-party projects used by SENTRY, including SAM2, SAMURAI, DAM4SAM, SAMITE, and HiM2SAM.
-
