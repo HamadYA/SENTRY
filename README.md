@@ -1,4 +1,4 @@
-# SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking
+# SENTRY <img src="assets/sentry_logo.png" alt="SENTRY Logo" height="32">: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking
 
 <!--
 <p align="center">
