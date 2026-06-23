@@ -3,14 +3,14 @@
 <!--
 <p align="center">
   <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B.svg"></a>
-  <a href="https://hamadya.github.io/SENTRY/"><img src="https://img.shields.io/badge/Project-Page-blue.svg"></a>
+  <a href="https://hamadya.github.io/SENTRY/page/"><img src="https://img.shields.io/badge/Project-Page-blue.svg"></a>
   <a href="https://github.com/<ORG>/SENTRY"><img src="https://img.shields.io/badge/Code-GitHub-black.svg"></a>
 </p>
 -->
 
 <p align="center">
   📄<a href="#">Paper</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-  🌐<a href="https://hamadya.github.io/SENTRY/">Project Page</a>&nbsp;&nbsp;
+  🌐<a href="https://hamadya.github.io/SENTRY/page/">Project Page</a>&nbsp;&nbsp;
 </p>
 
 **Official repository for "SENTRY <img src="assets/sentry_logo.png" alt="SENTRY Logo" height="32">: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking" (ECCV 2026).**
