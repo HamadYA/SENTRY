@@ -2,14 +2,14 @@
 
 <!--
 <p align="center">
-  <a href="https://arxiv.org/abs/XXXX.XXXXX"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B.svg"></a>
+  <a href="https://arxiv.org/abs/2606.24449"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B.svg"></a>
   <a href="https://hamadya.github.io/SENTRY/page/"><img src="https://img.shields.io/badge/Project-Page-blue.svg"></a>
   <a href="https://github.com/<ORG>/SENTRY"><img src="https://img.shields.io/badge/Code-GitHub-black.svg"></a>
 </p>
 -->
 
 <p align="center">
-  📄<a href="#">Paper</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+  📄<a href="https://arxiv.org/abs/2606.24449">Paper</a>&nbsp;&nbsp;|&nbsp;&nbsp;
   🌐<a href="https://hamadya.github.io/SENTRY/page/">Project Page</a>&nbsp;&nbsp;
 </p>
 
