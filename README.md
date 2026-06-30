@@ -26,6 +26,7 @@ Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. 
 - [Introduction](#introduction)
 - [Method Overview](#method-overview)
 - [Model Lineup](#model-lineup)
+- [SAM2 Baselines](#sam2-baselines)
 - [Getting Started](#getting-started)
 - [Checkpoints](#checkpoints)
 - [Quick Run](#quick-run)
@@ -141,6 +142,47 @@ Supported SAM2 model scales:
 | B | Base |
 | L | Large |
 
+---
+
+## SAM2 Baselines
+
+This repository also includes a dedicated `baseline/` directory for running the
+SAM2-based comparison methods used in the paper.
+
+> **Important:** `baseline/` is not the main SENTRY method.  
+> It is a unified inference wrapper for reproducing and evaluating the SAM2-based
+> baselines under a common configuration and output format.
+
+The baseline wrapper provides a shared entry point for running multiple SAM2-era
+trackers, including:
+
+| Baseline | Description |
+| :--- | :--- |
+| **SAM2** | Vanilla SAM2 tracker baseline. |
+| **SAMURAI** | SAMURAI-style SAM2 tracking baseline. |
+| **DAM4SAM** | DAM4SAM-style SAM2 tracking baseline. |
+| **HiM2SAM** | HiM2SAM-style SAM2 tracking baseline. |
+| **SAMITE** | SAMITE-style SAM2 tracking baseline. |
+| **SAM2Long** | Long-video SAM2-based tracking/VOS baseline. |
+
+The goal of this folder is to make baseline comparison reproducible. Each method
+keeps its own tracking logic, while the wrapper provides a consistent interface
+for dataset selection, checkpoint selection, output paths, and batch execution.
+
+Typical layout:
+
+```text
+baseline/
+├── sam2/              # SAM2 / SAM2.1 baseline backend
+├── SAMURAI/           # SAMURAI baseline backend
+├── DAM4SAM/           # DAM4SAM baseline backend
+├── HiM2SAM/           # HiM2SAM baseline backend
+├── SAMITE/            # SAMITE baseline backend
+├── SAM2Long/          # SAM2Long baseline backend
+├── unified/           # Shared baseline runner and dispatch logic
+├── utils/             # Shared dataset, mask, box, VOT, and visualization helpers
+├── config.yaml        # Public baseline config template
+└── run_all_models.py  # Unified baseline inference entry point
 ---
 
 ## Getting Started
