@@ -1,0 +1,75 @@
+seed: 0
+
+default_model: sam2.1_hiera_b+
+
+weights:
+  sam21-L: ../../checkpoints/sam2.1_hiera_large.pt
+  sam21-B: ../../checkpoints/sam2.1_hiera_base_plus.pt
+  sam21-S: ../../checkpoints/sam2.1_hiera_small.pt
+  sam21-T: ../../checkpoints/sam2.1_hiera_tiny.pt
+  sam2-L: ../../checkpoints/sam2_hiera_large.pt
+  sam2-B: ../../checkpoints/sam2_hiera_base_plus.pt
+  sam2-S: ../../checkpoints/sam2_hiera_small.pt
+  sam2-T: ../../checkpoints/sam2_hiera_tiny.pt
+
+models:
+  sam2.1_hiera_l:
+    sam2_cfg: configs/sam2.1/sam2.1_hiera_l.yaml
+    weight_key: sam21-L
+  sam2.1_hiera_b+:
+    sam2_cfg: configs/sam2.1/sam2.1_hiera_b+.yaml
+    weight_key: sam21-B
+  sam2.1_hiera_s:
+    sam2_cfg: configs/sam2.1/sam2.1_hiera_s.yaml
+    weight_key: sam21-S
+  sam2.1_hiera_t:
+    sam2_cfg: configs/sam2.1/sam2.1_hiera_t.yaml
+    weight_key: sam21-T
+  sam2_hiera_l:
+    sam2_cfg: configs/sam2/sam2_hiera_l.yaml
+    weight_key: sam2-L
+  sam2_hiera_b+:
+    sam2_cfg: configs/sam2/sam2_hiera_b+.yaml
+    weight_key: sam2-B
+  sam2_hiera_s:
+    sam2_cfg: configs/sam2/sam2_hiera_s.yaml
+    weight_key: sam2-S
+  sam2_hiera_t:
+    sam2_cfg: configs/sam2/sam2_hiera_t.yaml
+    weight_key: sam2-T
+
+datasets:
+  didi:
+    path: ""
+  lasot:
+    path: ""
+  lasot_ext:
+    path: ""
+  got_10k:
+    path: ""
+  trackingnet:
+    path: ""
+  tnl2k:
+    path: ""
+  latot:
+    path: ""
+  otb:
+    path: ""
+
+outputs:
+  didi:
+    path: ../../outputs/didi_pred_txts
+  lasot:
+    path: ../../outputs/lasot_pred_txts
+  lasot_ext:
+    path: ../../outputs/lasot_ext_pred_txts
+  got_10k:
+    path: ../../outputs/got10k_pred_txts
+  trackingnet:
+    path: ../../outputs/trackingnet_pred_txts
+  tnl2k:
+    path: ../../outputs/tnl2k_pred_txts
+  latot:
+    path: ../../outputs/latot_pred_txts
+  otb:
+    path: ../../outputs/otb_pred_txts
