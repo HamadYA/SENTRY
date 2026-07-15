@@ -3,6 +3,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
 
 import os
 import sys
@@ -1467,17 +1468,31 @@ class SAM2Base(torch.nn.Module):
             args=args
         )
 
-        (   _,
-            _,
-            _,
-            low_res_masks,
-            high_res_masks,
-            obj_ptr,
-            object_score_logits,
-            best_iou_score,
-            kf_ious,
-            prior
-        ) = sam_outputs
+        if len(sam_outputs) == 10:
+            (
+                _,
+                _,
+                _,
+                low_res_masks,
+                high_res_masks,
+                obj_ptr,
+                object_score_logits,
+                best_iou_score,
+                kf_ious,
+                _,
+            ) = sam_outputs
+        else:
+            (
+                _,
+                _,
+                _,
+                low_res_masks,
+                high_res_masks,
+                obj_ptr,
+                object_score_logits,
+            ) = sam_outputs
+            best_iou_score = 1.0
+            kf_ious = None
 
         current_out["pred_masks"] = low_res_masks
         current_out["pred_masks_high_res"] = high_res_masks

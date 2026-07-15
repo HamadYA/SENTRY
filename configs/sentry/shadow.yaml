@@ -1,0 +1,6 @@
+rescue_enabled: false
+reverse_enabled: true
+amg_enabled: true
+association_mode: simple
+memory_policy: baseline
+reverse_feature_cache_enabled: true

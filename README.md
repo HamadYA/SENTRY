@@ -31,15 +31,16 @@ Khalifa University, Abu Dhabi, UAE; University of Western Australia, Australia. 
 - [Checkpoints](#checkpoints)
 - [Quick Run](#quick-run)
 - [Evaluation](#evaluation)
-- [Citation](#citation)
 - [Acknowledgements](#acknowledgements)
+- [Citation](#citation)
+- [License](#license)
 
 ---
 
 ## News
 - 2026-06-18: SENTRY has been accepted to ECCV 2026.
 - 2026-06-18: Project page is available at https://hamadya.github.io/SENTRY/.
-- 2026-XX-XX: Code, inference scripts, and evaluation wrappers will be released here.
+- 2026-07-15: Code, inference scripts, and evaluation wrappers released.
 
 ### Release Plan and Checklist
 
@@ -49,22 +50,22 @@ We are releasing SENTRY code, configs, and evaluation scripts. Track progress he
   <summary><b>View checklist</b></summary>
 
 #### 1) Code and Inference
-- [ ] Release SENTRY code.
-- [ ] Add single-video tracking demo.
-- [ ] Add examples for SENTRY-S2, SENTRY-SR, and SENTRY-D4S.
+- [x] Release SENTRY code.
+- [x] Add single-video tracking demo.
+- [x] Add examples for SENTRY-S2, SENTRY-SR, and SENTRY-D4S.
 - [ ] Add visualization scripts for masks, boxes, and tracklets.
 
 #### 2) Third-Party Trackers
-- [ ] Add SAM2 preparation guide.
-- [ ] Add SAMURAI integration instructions.
-- [ ] Add DAM4SAM integration instructions.
-- [ ] Add HiM2SAM integration instructions.
-- [ ] Add SAMITE integration instructions.
+- [x] Add SAM2 environment and checkpoint preparation instructions.
+- [x] Add SAMURAI integration instructions.
+- [x] Add DAM4SAM integration instructions.
+- [x] Add HiM2SAM integration instructions.
+- [x] Add SAMITE integration instructions.
 
 #### 3) Evaluation
-- [ ] Add benchmark preparation instructions.
-- [ ] Add evaluation scripts for LaSOT, LaSOText, TNL2K, GOT-10k, and TrackingNet.
-- [ ] Add evaluation scripts for VOT20, VOT22, VOTS24, and DiDi.
+- [x] Add benchmark preparation instructions.
+- [x] Add evaluation scripts for LaSOT, LaSOText, TNL2K, GOT-10k, and TrackingNet.
+- [x] Add direct DiDi evaluation and retain the VOT20, VOT22, and VOTS24 toolkit wrappers.
 - [ ] Add scripts for VOS evaluation under the first-frame-mask protocol.
 
 </details>
@@ -79,13 +80,13 @@ We are releasing SENTRY code, configs, and evaluation scripts. Track progress he
   <img src="assets/teaser.png" width="85%">
 </p>
 
-Instead of committing the highest-confidence mask directly to memory, SENTRY performs **refine-before-write** validation. It aggregates multiple candidate masks, backtracks them into short tracklets, compares them against recent target and neighbor trajectories, and writes only the most temporally consistent mask to memory.
+SENTRY aggregates multiple candidate masks, backtracks them into short tracklets, and compares them against recent target and neighbor trajectories. The baseline prediction remains authoritative unless it is severely inconsistent and another identity passes strict temporal verification. The canonical configuration then replaces only that accepted rescue frame's non-conditioning spatial memory.
 
 Key properties:
 
 - **Training-free:** no retraining or finetuning is required.
 - **Plug-and-play:** integrates with existing SAM2-based trackers.
-- **Memory-safe:** validates masks before writing them into the autoregressive memory stream.
+- **Memory-safe:** preserves native memory by default and admits only independently verified severe rescues when enabled.
 - **Neighbor-aware:** penalizes candidates that align with nearby distractors.
 - **Real-time:** large-model SENTRY variants remain real-time on an NVIDIA A100.
 
@@ -117,7 +118,7 @@ Each candidate is backtracked over a fixed temporal window to produce a candidat
 
 ### 3. Cycle-Consistent Memory Admission
 
-SENTRY selects the candidate whose backward-propagated trajectory is most consistent with the target trajectory while avoiding neighbor/distractor trajectories. The selected mask is then written to memory using the host tracker's default update schedule.
+SENTRY selects the candidate whose backward-propagated trajectory is most consistent with the target trajectory while avoiding neighbor/distractor trajectories. The release default uses `memory_policy: severe_rescue`, which replaces only the accepted rescue frame's non-conditioning spatial memory. `configs/sentry/conservative.yaml` preserves native host memory.
 
 ---
 
@@ -125,13 +126,26 @@ SENTRY selects the candidate whose backward-propagated trajectory is most consis
 
 SENTRY can be attached to multiple SAM2-based visual trackers.
 
-| SENTRY variant | Host tracker | Description |
-| :--- | :--- | :--- |
-| **SENTRY-S2** | SAM2 | SENTRY applied to vanilla SAM2. |
-| **SENTRY-SR** | SAMURAI | SENTRY applied to SAMURAI. |
-| **SENTRY-D4S** | DAM4SAM | SENTRY applied to DAM4SAM. |
-| **SENTRY-SA** | SAMITE | SENTRY applied to SAMITE. |
-| **SENTRY-HiM** | HiM2SAM | SENTRY applied to HiM2SAM. |
+| SENTRY variant | Host tracker | Backend | Description |
+| :--- | :--- | :--- | :--- |
+| **SENTRY-S2** | SAM2 | `sam2` | SENTRY applied to vanilla SAM2. |
+| **SENTRY-SR** | SAMURAI | `samurai` | SENTRY applied to SAMURAI. |
+| **SENTRY-D4S** | DAM4SAM | `dam4sam` | SENTRY applied to DAM4SAM. |
+| **SENTRY-SA** | SAMITE | `samite` | SENTRY applied to SAMITE. |
+| **SENTRY-HiM** | HiM2SAM | `him2sam` | SENTRY applied to HiM2SAM. |
+
+All five SENTRY backends are bundled directly. Each host family is loaded lazily and must run in a separate
+process because the upstream forks use the same top-level Python package name, `sam2`.
+
+> **License note:** DAM4SAM and SAMITE did not publish an explicit software license in their upstream
+> repositories when this release was prepared. Their inclusion does not create a license grant. See
+> [`NOTICE`](NOTICE) before redistributing this repository.
+
+The runner resolves each fork's native model configuration explicitly. HiM2SAM uses its LaSOT profile by
+default, its LaSOText profile for `--dataset lasot_ext`, and its VOT profile for `--dataset didi`. The bundled
+HiM2SAM VOT profile is available only with `--tracker-name sam21-L`. HiM2SAM also loads CoTracker3 through
+`torch.hub` from a pinned upstream revision; its first run therefore needs network access or an existing
+Torch Hub cache for that revision.
 
 Supported SAM2 model scales:
 
@@ -183,6 +197,12 @@ baseline/
 ├── utils/             # Shared dataset, mask, box, VOT, and visualization helpers
 ├── config.yaml        # Public baseline config template
 └── run_all_models.py  # Unified baseline inference entry point
+```
+
+The main method is an installable package under `src/sentry_tracking`. See
+[`docs/architecture.md`](docs/architecture.md) and
+[`docs/adding_a_backend.md`](docs/adding_a_backend.md).
+
 ---
 
 ## Getting Started
@@ -201,7 +221,13 @@ Create the environment:
 ```bash
 conda env create -f sentry.yml
 conda activate sentry
+python -m pip install -e ".[evaluation]"
 ```
+
+SENTRY is designed to run from this source checkout using an editable install. A standalone wheel is not
+distributed because the bundled tracker forks and their model configurations are resolved relative to the
+repository. Install a CUDA-compatible PyTorch build for your platform before the editable install when the
+default package-index build is not appropriate for your GPU.
 
 Fallback manual installation:
 
@@ -210,6 +236,7 @@ conda create -n sentry python=3.10 -y
 conda activate sentry
 pip install --upgrade pip
 pip install -r requirements.txt
+python -m pip install -e ".[evaluation]"
 ```
 
 A typical setup requires PyTorch, OpenCV, NumPy, SciPy, tqdm, matplotlib, pycocotools, and the official benchmark toolkits for evaluation.
@@ -242,38 +269,44 @@ SENTRY/
 
 ## Quick Run
 
-The following example assumes the repository exposes `tools/demo.py`. Update script names if your local release uses a different layout.
-
 ### Run SENTRY-S2 on a video
 
 ```bash
 python tools/demo.py \
-  --tracker sentry_s2 \
-  --model-size large \
-  --video-path assets/example_video.mp4 \
-  --init-bbox 320 180 80 120 \
-  --save-dir outputs/sentry_s2_demo
+  --video assets/example_video.mp4 \
+  --init-bbox 40 80 64 48 \
+  --backend sam2 \
+  --tracker-name sam21-T \
+  --sentry-config configs/sentry/default.yaml \
+  --output-dir outputs/sentry_s2_demo
 ```
 
-### Run SENTRY-D4S on a video
+Use the conservative AMG-off, baseline-memory policy:
 
 ```bash
 python tools/demo.py \
-  --tracker sentry_d4s \
-  --model-size large \
-  --video-path assets/example_video.mp4 \
-  --init-bbox 320 180 80 120 \
-  --save-dir outputs/sentry_d4s_demo
+  --video assets/example_video.mp4 \
+  --init-bbox 40 80 64 48 \
+  --tracker-name sam21-T \
+  --sentry-config configs/sentry/conservative.yaml \
+  --output-dir outputs/sentry_s2_conservative_demo
 ```
 
-Arguments:
+The included synthetic video has a moving red target initialized by the box above. The demo writes `boxes.txt` and an annotated `tracking.mp4`.
 
-- `--tracker`: choose `sentry_s2`, `sentry_sr`, or `sentry_d4s`.
-- `--model-size`: choose `tiny`, `small`, `base`, or `large`.
-- `--video-path`: path to an input video.
-- `--init-bbox`: first-frame target box in `x y w h` format.
-- `--init-mask`: optional first-frame target mask.
-- `--save-dir`: directory for boxes, masks, and visualizations.
+Use `--backend samurai`, `--backend dam4sam`, `--backend samite`, or `--backend him2sam` to run the
+corresponding SENTRY host. The benchmark and demo runners resolve each fork's bundled model configuration;
+`--model-config` remains available for an explicit host-specific override.
+
+### Public SENTRY configurations
+
+| Configuration | AMG | Rescue output | Rescue memory | Feature cache |
+| :--- | :---: | :---: | :---: | :---: |
+| `default.yaml` | Yes | Severe cases only | Severe cases only | Yes |
+| `conservative.yaml` | No | Severe cases only | No | Yes |
+| `shadow.yaml` | Yes | No | No | Yes |
+
+`configs/sentry/default.yaml` is the canonical paper configuration. The Python API defaults match this file, so using SENTRY without an explicit policy YAML has the same behavior.
 
 ---
 
@@ -292,16 +325,56 @@ Datasets:
 - GOT-10k
 - TrackingNet
 
-Example command:
+The structured release runner supports the same dataset keys as the unified baseline wrapper:
+
+| Dataset key | Benchmark | Sequence index |
+| :--- | :--- | :--- |
+| `lasot` | LaSOT | `testing_set.txt` |
+| `lasot_ext` | LaSOT Extension / LaSOText | `testing_set.txt` |
+| `got_10k` | GOT-10k test | `list.txt` |
+| `trackingnet` | TrackingNet test | `list.txt` |
+| `tnl2k` | TNL2K test | `list.txt` |
+| `latot` | LaTOT | `list.txt` |
+| `otb` | OTB | `list.txt` |
+| `didi` | DiDi mask tracking | `list.txt` |
+
+Copy `configs/paths.example.yaml` to `configs/paths.yaml` once and set the
+machine-local dataset, checkpoint, and output paths. The local file is ignored
+by Git, and explicit command-line path arguments still override it.
 
 ```bash
-python tools/eval.py \
-  --tracker sentry_d4s \
-  --model-size large \
-  --dataset LaSOT \
-  --data-root /path/to/LaSOT \
-  --save-dir outputs/eval/lasot_sentry_d4s_l
+python tools/run_benchmark.py \
+  --method sentry \
+  --backend sam2 \
+  --dataset lasot \
+  --tracker-name sam21-T \
+  --sentry-config configs/sentry/default.yaml \
+  --debug-log outputs/lasot/sentry_s2_t.jsonl
 ```
+
+The same command runs every bundled paper variant by changing only the backend and output/debug locations:
+
+```bash
+# SENTRY-SR; use dam4sam, samite, or him2sam for the other host families.
+python tools/run_benchmark.py \
+  --method sentry \
+  --backend samurai \
+  --dataset lasot \
+  --tracker-name sam21-T \
+  --sentry-config configs/sentry/default.yaml \
+  --debug-log outputs/lasot/sentry_sr_t.jsonl
+```
+
+Change `--dataset` to any key in the table; the corresponding root, output, and checkpoint are read from `configs/paths.yaml`. Use `--sequence NAME` to select one sequence from that dataset's official index. The runner reports progress, FPS, ETA, and average image-I/O, forward, candidate-generation, and reverse-verification times every 100 frames. Change the interval with `--progress-every N`.
+
+Box benchmarks write one `<sequence>.txt` file per sequence in `[x,y,w,h]` format. DiDi additionally writes VOT mask trajectories under `<output>/<sequence>/<sequence>.txt`. Dataset layouts and examples are documented in [`docs/datasets.md`](docs/datasets.md).
+
+SAM2 release configs enable `reverse_feature_cache_enabled` so reverse
+candidates reuse the forward pass's immutable image-encoder features while
+retaining independent candidate memory and propagation states. Set it to
+`false` for an uncached equivalence or timing comparison.
+
+Run `--method baseline` with the same arguments to validate baseline equivalence.
 
 ### VOT-Style Tracking
 
@@ -312,16 +385,7 @@ Datasets:
 - VOTS24
 - DiDi
 
-Example command:
-
-```bash
-python tools/eval_vot.py \
-  --tracker sentry_d4s \
-  --model-size large \
-  --dataset VOT22 \
-  --data-root /path/to/VOT22 \
-  --save-dir outputs/eval/vot22_sentry_d4s_l
-```
+DiDi is supported directly by `tools/run_benchmark.py`. The original interactive VOT20/VOT22/VOTS24 wrappers remain under `baseline/`; those toolkit-driven protocols are separate from the offline dataset runner.
 
 ### Main Results: Large Models
 
@@ -360,7 +424,7 @@ Runtime on NVIDIA A100:
 
 ## 🙏 Acknowledgements
 
-We would like to express our sincere gratitude to the authors and contributors of [SAM2](https://github.com/facebookresearch/sam2), [SAMURAI](https://github.com/yangchris11/samurai), [DAM4SAM](https://github.com/jovanavidenovic/DAM4SAM), [SAMITE](https://github.com/Sam1224/SAMITE), [HiM2SAM](https://github.com/LouisFinner/HiM2SAM), [SAM2Long](https://github.com/LouisFinner/HiM2SAM), [NeighborTrack](https://github.com/franktpmvu/NeighborTrack), and many other open-source efforts in visual object tracking and video object segmentation. Their impactful research, public implementations, checkpoints, and benchmarks have been invaluable to the development and evaluation of SENTRY.
+We would like to express our sincere gratitude to the authors and contributors of [SAM2](https://github.com/facebookresearch/sam2), [SAMURAI](https://github.com/yangchris11/samurai), [DAM4SAM](https://github.com/jovanavidenovic/DAM4SAM), [SAMITE](https://github.com/Sam1224/SAMITE), [HiM2SAM](https://github.com/LouisFinner/HiM2SAM), [SAM2Long](https://github.com/Mark12Ding/SAM2Long), [NeighborTrack](https://github.com/franktpmvu/NeighborTrack), and many other open-source efforts in visual object tracking and video object segmentation. Their impactful research, public implementations, checkpoints, and benchmarks have been invaluable to the development and evaluation of SENTRY.
 
 We are also very grateful to the **ECCV 2026** reviewers, area chairs, organizers, and the broader **computer vision community** for their constructive feedback, service, and continued support of open scientific progress. We deeply appreciate being part of this community and hope SENTRY serves as a useful contribution for future research.
 
@@ -380,3 +444,15 @@ If you find SENTRY useful in your research, please consider citing our paper:
   year={2026}
 }
 ```
+
+GitHub can also generate citation metadata directly from [`CITATION.cff`](CITATION.cff).
+
+---
+
+## License
+
+SENTRY-authored code and documentation are licensed under the [Apache License 2.0](LICENSE). Bundled and
+runtime-loaded third-party components remain subject to their own terms; consult [`NOTICE`](NOTICE),
+[`LICENSE_cctorch`](LICENSE_cctorch), and [`THIRD_PARTY_LICENSES`](THIRD_PARTY_LICENSES) before use or
+redistribution. In particular, SAM2Long and CoTracker include non-commercial terms, while DAM4SAM and
+SAMITE require upstream license clarification or permission before public redistribution.

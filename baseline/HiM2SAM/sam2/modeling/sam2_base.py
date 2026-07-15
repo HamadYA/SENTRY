@@ -3,6 +3,8 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
+
 import time
 import os
 import torch
@@ -20,15 +22,46 @@ from sam2.utils.kalman_filter import KalmanFilter
 import cv2
 # a large negative value as a placeholder score for missing objects
 NO_OBJ_SCORE = -1024.0
-#test for mask selection
-from vot.region.raster import calculate_overlaps
-from vot.region.shapes import Mask
-from vot.region import RegionType
 from scipy.spatial.distance import directed_hausdorff
 import pdb
 
 import numpy as np
 import sys
+
+
+def _mask_bbox(mask):
+    rows, cols = np.nonzero(mask)
+    if rows.size == 0:
+        return None
+    x1, x2 = float(cols.min()), float(cols.max() + 1)
+    y1, y2 = float(rows.min()), float(rows.max() + 1)
+    return [x1, y1, x2 - x1, y2 - y1]
+
+
+def _bbox_iou(first, second):
+    if first is None or second is None:
+        return 0.0
+    ax, ay, aw, ah = first
+    bx, by, bw, bh = second
+    intersection_width = max(0.0, min(ax + aw, bx + bw) - max(ax, bx))
+    intersection_height = max(0.0, min(ay + ah, by + bh) - max(ay, by))
+    intersection = intersection_width * intersection_height
+    union = aw * ah + bw * bh - intersection
+    return intersection / union if union > 0 else 0.0
+
+
+def _mask_bbox_overlaps(chosen_mask, alternative_masks):
+    try:
+        from vot.region import RegionType
+        from vot.region.raster import calculate_overlaps
+        from vot.region.shapes import Mask
+    except ImportError:
+        chosen_bbox = _mask_bbox(chosen_mask)
+        return [_bbox_iou(chosen_bbox, _mask_bbox(mask)) for mask in alternative_masks]
+
+    chosen_bbox = Mask(chosen_mask).convert(RegionType.RECTANGLE)
+    alternative_bboxes = [Mask(mask).convert(RegionType.RECTANGLE) for mask in alternative_masks]
+    return [calculate_overlaps([chosen_bbox], [bbox])[0] for bbox in alternative_bboxes]
 
 def keep_largest_component(mask):
     """
@@ -742,8 +775,6 @@ class SAM2Base(torch.nn.Module):
                                      
                     # Numpy array of the chosen mask and corresponding bounding box
                     chosen_mask_np = (high_res_multimasks[0, best_iou_inds[0]]>0).cpu().numpy().astype(np.uint8).copy()
-                    chosen_bbox = Mask(chosen_mask_np>0).convert(RegionType.RECTANGLE)
-
                     # Delete the parts of the alternative masks that overlap with the chosen mask
                     alternative_masks = [np.logical_and(m_, np.logical_not(chosen_mask_np)).astype(np.uint8) for m_ in alternative_masks]
                     # Keep only the largest connected component of the processed alternative masks
@@ -751,10 +782,8 @@ class SAM2Base(torch.nn.Module):
                     if len(alternative_masks) > 0:
                         # Make the union of the chosen mask and the processed alternative masks (corresponding to the largest connected component)
                         alternative_masks = [np.logical_or(m_, chosen_mask_np).astype(np.uint8) for m_ in alternative_masks]
-                        # Convert the processed alternative masks to bounding boxes to calculate the IoUs bounding box-wise
-                        alternative_bboxes = [Mask(m_).convert(RegionType.RECTANGLE) for m_ in alternative_masks]
                         # Calculate the IoUs between the chosen bounding box and the processed alternative bounding boxes
-                        memious = [calculate_overlaps([chosen_bbox], [bbox])[0] for bbox in alternative_bboxes]
+                        memious = _mask_bbox_overlaps(chosen_mask_np > 0, alternative_masks)
                         
                         # The second condition checks if within the calculated IoUs, there is at least one IoU that is less than 0.7
                         # That would mean that there are significant differences between the chosen mask and the processed alternative masks, 

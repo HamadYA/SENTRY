@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use SENTRY, please cite the ECCV 2026 paper."
+title: "SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking"
+type: software
+version: 0.1.0
+date-released: 2026-07-15
+license: Apache-2.0
+repository-code: "https://github.com/HamadYA/SENTRY"
+url: "https://hamadya.github.io/SENTRY/page/"
+authors:
+  - family-names: Alansari
+    given-names: Mohamad
+  - family-names: Michael
+    given-names: Yonathan
+  - family-names: AlMarzouqi
+    given-names: Hasan
+  - family-names: Naseer
+    given-names: Muzammal
+  - family-names: Werghi
+    given-names: Naoufel
+  - family-names: Javed
+    given-names: Sajid
+preferred-citation:
+  type: conference-paper
+  title: "SENTRY: SAM2-Enhanced Neighbor-Aware and Temporally Reasoned Memory for Visual Tracking"
+  conference:
+    name: European Conference on Computer Vision
+    alias: ECCV
+  year: 2026
+  authors:
+    - family-names: Alansari
+      given-names: Mohamad
+    - family-names: Michael
+      given-names: Yonathan
+    - family-names: AlMarzouqi
+      given-names: Hasan
+    - family-names: Naseer
+      given-names: Muzammal
+    - family-names: Werghi
+      given-names: Naoufel
+    - family-names: Javed
+      given-names: Sajid

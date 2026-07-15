@@ -1,0 +1,27 @@
+# Copy this file to configs/paths.yaml and keep machine-local paths untracked.
+# Relative paths are resolved from the repository root.
+datasets:
+  lasot: /path/to/LaSOT
+  lasot_ext: /path/to/LaSOT_Extension
+  got_10k: /path/to/GOT-10k/test
+  trackingnet: /path/to/TrackingNet/TEST
+  tnl2k: /path/to/TNL2K/test
+  latot: /path/to/LaTOT
+  otb: /path/to/OTB
+  didi: /path/to/DiDi
+
+checkpoints:
+  sam21-L: /path/to/checkpoints/sam2.1_hiera_large.pt
+  sam21-B: /path/to/checkpoints/sam2.1_hiera_base_plus.pt
+  sam21-S: /path/to/checkpoints/sam2.1_hiera_small.pt
+  sam21-T: /path/to/checkpoints/sam2.1_hiera_tiny.pt
+
+outputs:
+  lasot: outputs/lasot
+  lasot_ext: outputs/lasot_ext
+  got_10k: outputs/got_10k
+  trackingnet: outputs/trackingnet
+  tnl2k: outputs/tnl2k
+  latot: outputs/latot
+  otb: outputs/otb
+  didi: outputs/didi

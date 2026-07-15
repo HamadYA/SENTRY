@@ -1,3 +1,5 @@
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
+
 import numpy as np
 import yaml
 import torch
@@ -31,7 +33,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed(seed)
 
 class SAMTracker():
-    def __init__(self, tracker_name="sam21-L"):
+    def __init__(self, tracker_name="sam21-L", checkpoint=None, model_cfg=None, device=None):
         """
         Constructor for the SAM (2 or 2.1) tracking wrapper.
 
@@ -46,8 +48,12 @@ class SAMTracker():
             - "sam2-S": SAM2 Hiera Small
             - "sam2-T": SAM2 Hiera Tiny
         """
-        self.checkpoint, self.model_cfg = determine_tracker(tracker_name)
-        self.device = config.get("device", "cuda:0")
+        if checkpoint is None or model_cfg is None:
+            default_checkpoint, default_model_cfg = determine_tracker(tracker_name)
+            checkpoint = checkpoint or default_checkpoint
+            model_cfg = model_cfg or default_model_cfg
+        self.checkpoint, self.model_cfg = checkpoint, model_cfg
+        self.device = device or config.get("device", "cuda:0")
 
         # Image preprocessing parameters
         self.input_image_size = 1024       

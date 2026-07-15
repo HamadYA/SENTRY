@@ -1,0 +1,35 @@
+rescue_enabled: true
+reverse_enabled: true
+amg_enabled: false
+association_mode: simple
+memory_policy: baseline
+
+rescue_cooldown_frames: 5
+rescue_history_window: 10
+rescue_min_history: 3
+rescue_area_collapse: 0.10
+rescue_area_expand: 8.0
+rescue_candidate_min_area_ratio: 0.25
+rescue_candidate_max_area_ratio: 4.0
+rescue_center_jump_scale: 4.0
+rescue_moderate_area_min_ratio: 0.50
+rescue_moderate_area_max_ratio: 2.0
+rescue_low_confidence: 0.35
+
+reverse_frames: 9
+reverse_feature_cache_enabled: true
+reverse_min_history: 3
+reverse_min_mean_iou: 0.65
+reverse_min_iou: 0.20
+reverse_min_coverage: 0.75
+reverse_min_margin: 0.15
+
+pool_match_min_iou: 0.05
+pool_rescue_min_iou: 0.40
+kalman_warning_iou: 0.40
+
+decoder_relative_iou_alpha: 0.80
+amg_template_similarity_beta: 0.80
+soft_nms_sigma: 0.01
+soft_nms_score_threshold: 0.25
+max_appearance_candidates: 5

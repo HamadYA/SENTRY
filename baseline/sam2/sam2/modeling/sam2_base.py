@@ -3,6 +3,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
 
 import torch
 import torch.distributed
@@ -847,9 +848,9 @@ class SAM2Base(torch.nn.Module):
         )
 
         (
+            low_res_multimasks,
             _,
-            _,
-            _,
+            ious,
             low_res_masks,
             high_res_masks,
             obj_ptr,
@@ -859,6 +860,9 @@ class SAM2Base(torch.nn.Module):
         current_out["pred_masks"] = low_res_masks
         current_out["pred_masks_high_res"] = high_res_masks
         current_out["obj_ptr"] = obj_ptr
+        # Side outputs for SENTRY; the native winner and memory path remain unchanged.
+        current_out["pred_multimasks"] = low_res_multimasks
+        current_out["multimask_ious"] = ious
         if not self.training:
             # Only add this in inference (to avoid unused param in activation checkpointing;
             # it's mainly used in the demo to encode spatial memories w/ consolidated masks)

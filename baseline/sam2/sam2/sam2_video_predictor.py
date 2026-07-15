@@ -3,6 +3,7 @@
 
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
 
 import warnings
 from collections import OrderedDict
@@ -549,6 +550,7 @@ class SAM2VideoPredictor(SAM2Base):
         start_frame_idx=None,
         max_frame_num_to_track=None,
         reverse=False,
+        return_multimasks=False,
     ):
         """Propagate the input points across frames to track in the entire video."""
         self.propagate_in_video_preflight(inference_state)
@@ -582,8 +584,10 @@ class SAM2VideoPredictor(SAM2Base):
 
         # for frame_idx in tqdm(processing_order, desc="propagate in video"):
         for frame_idx in processing_order:
-            
             pred_masks_per_obj = [None] * batch_size
+            pred_multimasks_per_obj = [None] * batch_size
+            multimask_ious_per_obj = [None] * batch_size
+            object_scores_per_obj = [None] * batch_size
             for obj_idx in range(batch_size):
                 obj_output_dict = inference_state["output_dict_per_obj"][obj_idx]
                 # We skip those frames already in consolidated outputs (these are frames
@@ -620,6 +624,23 @@ class SAM2VideoPredictor(SAM2Base):
                 }
                 pred_masks_per_obj[obj_idx] = pred_masks
 
+                if return_multimasks:
+                    obj_multimasks = current_out.get("pred_multimasks")
+                    if obj_multimasks is not None:
+                        pred_multimasks_per_obj[obj_idx] = obj_multimasks.to(
+                            inference_state["device"], non_blocking=True
+                        )
+                    obj_ious = current_out.get("multimask_ious")
+                    if obj_ious is not None:
+                        multimask_ious_per_obj[obj_idx] = obj_ious.to(
+                            inference_state["device"], non_blocking=True
+                        )
+                    obj_score = current_out.get("object_score_logits")
+                    if obj_score is not None:
+                        object_scores_per_obj[obj_idx] = obj_score.to(
+                            inference_state["device"], non_blocking=True
+                        )
+
             # Resize the output mask to the original video resolution (we directly use
             # the mask scores on GPU for output to avoid any CPU conversion in between)
             if len(pred_masks_per_obj) > 1:
@@ -629,7 +650,26 @@ class SAM2VideoPredictor(SAM2Base):
             _, video_res_masks = self._get_orig_video_res_output(
                 inference_state, all_pred_masks
             )
-            yield frame_idx, obj_ids, video_res_masks
+            if return_multimasks:
+                video_res_multimasks = None
+                multimask_ious = None
+                object_score_logits = None
+                if all(item is not None for item in pred_multimasks_per_obj):
+                    all_multimasks = torch.cat(pred_multimasks_per_obj, dim=0)
+                    _, video_res_multimasks = self._get_orig_video_res_output(
+                        inference_state, all_multimasks
+                    )
+                if all(item is not None for item in multimask_ious_per_obj):
+                    multimask_ious = torch.cat(multimask_ious_per_obj, dim=0)
+                if all(item is not None for item in object_scores_per_obj):
+                    object_score_logits = torch.cat(object_scores_per_obj, dim=0)
+                yield frame_idx, obj_ids, video_res_masks, {
+                    "video_res_multimasks": video_res_multimasks,
+                    "multimask_ious": multimask_ious,
+                    "object_score_logits": object_score_logits,
+                }
+            else:
+                yield frame_idx, obj_ids, video_res_masks
 
     @torch.inference_mode()
     def clear_all_prompts_in_frame(
@@ -789,6 +829,20 @@ class SAM2VideoPredictor(SAM2Base):
                 pred_masks_gpu, self.fill_hole_area
             )
         pred_masks = pred_masks_gpu.to(storage_device, non_blocking=True)
+        pred_multimasks_gpu = current_out.get("pred_multimasks")
+        if pred_multimasks_gpu is not None:
+            if self.fill_hole_area > 0:
+                batch, count, height, width = pred_multimasks_gpu.shape
+                pred_multimasks_gpu = fill_holes_in_mask_scores(
+                    pred_multimasks_gpu.reshape(batch * count, 1, height, width),
+                    self.fill_hole_area,
+                ).reshape(batch, count, height, width)
+            pred_multimasks = pred_multimasks_gpu.to(storage_device, non_blocking=True)
+        else:
+            pred_multimasks = None
+        multimask_ious = current_out.get("multimask_ious")
+        if multimask_ious is not None:
+            multimask_ious = multimask_ious.to(storage_device, non_blocking=True)
         # "maskmem_pos_enc" is the same across frames, so we only need to store one copy of it
         maskmem_pos_enc = self._get_maskmem_pos_enc(inference_state, current_out)
         # object pointer is a small tensor, so we always keep it on GPU memory for fast access
@@ -799,6 +853,8 @@ class SAM2VideoPredictor(SAM2Base):
             "maskmem_features": maskmem_features,
             "maskmem_pos_enc": maskmem_pos_enc,
             "pred_masks": pred_masks,
+            "pred_multimasks": pred_multimasks,
+            "multimask_ious": multimask_ious,
             "obj_ptr": obj_ptr,
             "object_score_logits": object_score_logits,
         }

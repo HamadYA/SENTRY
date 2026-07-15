@@ -1,3 +1,5 @@
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
+
 import numpy as np
 import yaml
 import torch
@@ -42,7 +44,7 @@ class Args:
     
 
 class SAMTracker():
-    def __init__(self, tracker_name="sam21-L"):
+    def __init__(self, tracker_name="sam21-L", checkpoint=None, model_cfg=None, device=None):
         """
         Constructor for the SAM (2 or 2.1) tracking wrapper.
 
@@ -57,8 +59,12 @@ class SAMTracker():
             - "sam2-S": SAM2 Hiera Small
             - "sam2-T": SAM2 Hiera Tiny
         """
-        self.checkpoint, self.model_cfg = determine_tracker(tracker_name)
-        self.device = config.get("device", "cuda:0")
+        if checkpoint is None or model_cfg is None:
+            default_checkpoint, default_model_cfg = determine_tracker(tracker_name)
+            checkpoint = checkpoint or default_checkpoint
+            model_cfg = model_cfg or default_model_cfg
+        self.checkpoint, self.model_cfg = checkpoint, model_cfg
+        self.device = device or config.get("device", "cuda:0")
 
         # Image preprocessing parameters
         self.input_image_size = 1024       
@@ -138,7 +144,7 @@ class SAMTracker():
         return inference_state
     
     @torch.inference_mode()
-    def initialize(self, image, init_mask, bbox=None):
+    def initialize(self, image, init_mask, bbox=None, use_mask_prompt=False):
         """
         Initialize the tracker with the first frame and mask.
         Function builds the SAM (2 or 2.1) tracker and initializes it with the first frame and mask.
@@ -180,19 +186,20 @@ class SAMTracker():
             init_mask = self.estimate_mask_from_box(bbox)
 
 
-        # _, _, out_mask_logits = self.predictor.add_new_mask(
-            # inference_state=self.inference_state,
-            # frame_idx=0,
-            # obj_id=0,
-            # mask=init_mask,
-        # )
-
-        bbox_xyxy = np.array([bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]])[None, :]
-        _, _, out_mask_logits = self.predictor.add_new_points_or_box(
-            inference_state=self.inference_state,
-            box=bbox_xyxy, 
-            frame_idx=0, 
-            obj_id=0
+        if use_mask_prompt and init_mask is not None:
+            _, _, out_mask_logits = self.predictor.add_new_mask(
+                inference_state=self.inference_state,
+                frame_idx=0,
+                obj_id=0,
+                mask=init_mask,
+            )
+        else:
+            bbox_xyxy = np.array([bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]])[None, :]
+            _, _, out_mask_logits = self.predictor.add_new_points_or_box(
+                inference_state=self.inference_state,
+                box=bbox_xyxy,
+                frame_idx=0,
+                obj_id=0,
             )
 
         m = (out_mask_logits[0, 0] > 0).float().cpu().numpy().astype(np.uint8)

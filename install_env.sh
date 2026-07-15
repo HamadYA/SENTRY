@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ENV_NAME="${ENV_NAME:-sentry}"
-ENV_FILE="${ENV_FILE:-environment.yml}"
+ENV_FILE="${ENV_FILE:-sentry.yml}"
 PIP_REQUIREMENTS="${PIP_REQUIREMENTS:-requirements.txt}"
 INSTALL_PIP_FREEZE=0
 

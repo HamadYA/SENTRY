@@ -1,0 +1,59 @@
+SENTRY
+Copyright 2026 SENTRY Authors
+
+The Apache License 2.0 in LICENSE applies only to SENTRY-authored code and
+documentation. Third-party components retain their original copyright and
+license terms. Nothing in the SENTRY license expands or replaces those terms.
+
+Bundled or adapted components
+-----------------------------
+
+SAM 2
+  Copyright Meta Platforms, Inc. and affiliates.
+  Apache License 2.0.
+  https://github.com/facebookresearch/sam2
+
+SAM 2 connected-components extension (cctorch)
+  Copyright (c) 2024, Meta Platforms, Inc. and affiliates.
+  BSD 3-Clause License; see LICENSE_cctorch.
+
+SAMURAI
+  Apache License 2.0.
+  https://github.com/yangchris11/samurai
+
+HiM2SAM
+  Apache License 2.0.
+  https://github.com/LouisFinner/HiM2SAM
+
+SAM2Long
+  The upstream repository states that most of the project is licensed under
+  Creative Commons Attribution-NonCommercial 4.0 International, while code
+  derived from SAM 2 remains under Apache License 2.0. See
+  THIRD_PARTY_LICENSES/SAM2Long-CC-BY-NC-4.0.txt.
+  https://github.com/Mark12Ding/SAM2Long
+
+CoTracker
+  HiM2SAM loads CoTracker at runtime from Torch Hub. The upstream repository
+  states that most of the project is licensed under Creative Commons
+  Attribution-NonCommercial terms, with separately licensed portions noted by
+  upstream. CoTracker is not relicensed by SENTRY.
+  https://github.com/facebookresearch/co-tracker
+
+Components without an upstream software license
+------------------------------------------------
+
+At the time this notice was prepared (2026-07-15), the public DAM4SAM and
+SAMITE repositories did not contain an explicit software license:
+
+  https://github.com/jovanavidenovic/DAM4SAM
+  https://github.com/Sam1224/SAMITE
+
+No license grant is made by this repository for their upstream contributions.
+Before publicly redistributing those components, obtain an explicit license or
+written permission from their copyright holders, or remove the components from
+the distribution. Their embedded SAM 2-derived files remain subject to SAM 2's
+Apache License 2.0 terms.
+
+SENTRY includes integration modifications to several upstream tracker forks.
+Consult Git history for the modifications and retain this NOTICE when
+redistributing the repository.

@@ -1,3 +1,5 @@
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
+
 import torch
 import sys
 import cv2
@@ -8,6 +10,11 @@ import time
 import math
 import torch.nn.functional as F
 from random import randint
+
+
+COTRACKER_TORCH_HUB_REPO = (
+    "facebookresearch/co-tracker:82e02e8029753ad4ef13cf06be7f4fc5facdda4d"
+)
 
 
 class torch_GaussianKDE:
@@ -68,8 +75,15 @@ class RVCotFilter():
                  iouweight = 0.5,
                  **args):
         
-        # initialize cotracker3 using torch.hub
-        self.cot_model = torch.hub.load("facebookresearch/co-tracker", "cotracker3_offline")
+        if str(device).startswith("cuda") and not torch.cuda.is_available():
+            device = "cpu"
+
+        # Keep the external runtime dependency reproducible across releases.
+        self.cot_model = torch.hub.load(
+            COTRACKER_TORCH_HUB_REPO,
+            "cotracker3_offline",
+            trust_repo=True,
+        )
         self.cot_model.to(device).to(dtype=torch.float32).eval()
         self.num_point_per_mask = 100  # limited by cuda and fps
         self.box_iou = box_iou 

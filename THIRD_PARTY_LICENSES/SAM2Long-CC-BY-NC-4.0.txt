@@ -1,0 +1,17 @@
+SAM2Long license notice
+=======================
+
+The SAM2Long upstream repository states that the majority of its project is
+licensed under the Creative Commons Attribution-NonCommercial 4.0
+International license (CC BY-NC 4.0). Original SAM 2 components remain under
+the Apache License 2.0.
+
+License summary and full legal text:
+https://creativecommons.org/licenses/by-nc/4.0/
+https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+Upstream source and attribution:
+https://github.com/Mark12Ding/SAM2Long
+
+This file records the upstream terms and does not relicense SAM2Long under the
+SENTRY repository's Apache License 2.0.

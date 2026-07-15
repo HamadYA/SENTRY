@@ -1,3 +1,5 @@
+# Modified by the SENTRY Authors in 2026 for SENTRY integration.
+
 import numpy as np
 import yaml
 import torch
@@ -21,10 +23,48 @@ def _load_vot_region_helpers():
         from vot.region import RegionType
         from vot.region.raster import calculate_overlaps
         from vot.region.shapes import Mask
-    except ImportError as exc:
-        raise RuntimeError(
-            "DAM4SAM distraction-aware memory requires the VOT Python package."
-        ) from exc
+    except ImportError:
+        class RegionType:
+            RECTANGLE = "rectangle"
+
+        class Mask:
+            def __init__(self, data):
+                self.data = np.asarray(data, dtype=np.uint8)
+
+            def rasterize(self, bounds):
+                x1, y1, x2, y2 = (int(value) for value in bounds)
+                target_shape = (y2 - y1 + 1, x2 - x1 + 1)
+                if self.data.shape == target_shape:
+                    return self.data.copy()
+                resized = torch.nn.functional.interpolate(
+                    torch.as_tensor(self.data, dtype=torch.float32)[None, None],
+                    size=target_shape,
+                    mode="nearest",
+                )
+                return resized[0, 0].to(torch.uint8).numpy()
+
+            def convert(self, region_type):
+                if region_type != RegionType.RECTANGLE:
+                    raise ValueError(f"Unsupported fallback region type: {region_type}")
+                rows, cols = np.nonzero(self.data)
+                if rows.size == 0:
+                    return [0.0, 0.0, 0.0, 0.0]
+                x1, x2 = float(cols.min()), float(cols.max() + 1)
+                y1, y2 = float(rows.min()), float(rows.max() + 1)
+                return [x1, y1, x2 - x1, y2 - y1]
+
+        def calculate_overlaps(first, second, bounds=None):
+            del bounds
+            overlaps = []
+            for left, right in zip(first, second):
+                lx, ly, lw, lh = (float(value) for value in left)
+                rx, ry, rw, rh = (float(value) for value in right)
+                intersection_width = max(0.0, min(lx + lw, rx + rw) - max(lx, rx))
+                intersection_height = max(0.0, min(ly + lh, ry + rh) - max(ly, ry))
+                intersection = intersection_width * intersection_height
+                union = lw * lh + rw * rh - intersection
+                overlaps.append(intersection / union if union > 0 else 0.0)
+            return np.asarray(overlaps, dtype=np.float32)
     return calculate_overlaps, Mask, RegionType
 
 
@@ -44,7 +84,7 @@ if torch.cuda.is_available():
     torch.cuda.manual_seed(seed)
 
 class SAMTracker():
-    def __init__(self, tracker_name="sam21-L"):
+    def __init__(self, tracker_name="sam21-L", checkpoint=None, model_cfg=None, device=None):
         """
         Constructor for the DAM4SAM (2 or 2.1) tracking wrapper.
 
@@ -59,8 +99,12 @@ class SAMTracker():
             - "sam2-S": DAM4SAM (2) Hiera Small
             - "sam2-T": DAM4SAM (2) Hiera Tiny
         """
-        self.checkpoint, self.model_cfg = determine_tracker(tracker_name)
-        self.device = config.get("device", "cuda:0")
+        if checkpoint is None or model_cfg is None:
+            default_checkpoint, default_model_cfg = determine_tracker(tracker_name)
+            checkpoint = checkpoint or default_checkpoint
+            model_cfg = model_cfg or default_model_cfg
+        self.checkpoint, self.model_cfg = checkpoint, model_cfg
+        self.device = device or config.get("device", "cuda:0")
 
         # Image preprocessing parameters
         self.input_image_size = 1024       
